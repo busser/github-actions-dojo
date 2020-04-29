@@ -432,7 +432,7 @@ jobs:
           username: "${{ secrets.DOCKER_USERNAME }}"
           password: "${{ secrets.DOCKER_PASSWORD }}"
           repository: "${{ env.IMAGE_REPOSITORY }}"
-          tags: "${GITHUB_REF#refs/heads/},${GITHUB_SHA}"
+          tags: "${{ env.GITHUB_SHA }}"
 ```
 
 ```yaml title="Container image"
@@ -471,7 +471,7 @@ jobs:
           username: "${{ secrets.DOCKER_USERNAME }}"
           password: "${{ secrets.DOCKER_PASSWORD }}"
           repository: "${{ env.IMAGE_REPOSITORY }}"
-          tags: "${GITHUB_REF#refs/heads/},${GITHUB_SHA}"
+          tags: "${{ env.GITHUB_SHA }}"
 ```
 
 ```yaml 25:36 title="Container image"
@@ -510,7 +510,7 @@ jobs:
           username: "${{ secrets.DOCKER_USERNAME }}"
           password: "${{ secrets.DOCKER_PASSWORD }}"
           repository: "${{ env.IMAGE_REPOSITORY }}"
-          tags: "${GITHUB_REF#refs/heads/},${GITHUB_SHA}"
+          tags: "${{ env.GITHUB_SHA }}"
 ```
 
 ```yaml title="Deployment"
@@ -549,7 +549,7 @@ jobs:
           username: "${{ secrets.DOCKER_USERNAME }}"
           password: "${{ secrets.DOCKER_PASSWORD }}"
           repository: "${{ env.IMAGE_REPOSITORY }}"
-          tags: "${GITHUB_REF#refs/heads/},${GITHUB_SHA}"
+          tags: "${{ env.GITHUB_SHA }}"
   deploy:
     runs-on: "ubuntu-latest"
 ```
@@ -590,10 +590,10 @@ jobs:
           username: "${{ secrets.DOCKER_USERNAME }}"
           password: "${{ secrets.DOCKER_PASSWORD }}"
           repository: "${{ env.IMAGE_REPOSITORY }}"
-          tags: "${GITHUB_REF#refs/heads/},${GITHUB_SHA}"
+          tags: "${{ env.GITHUB_SHA }}"
   deploy:
     runs-on: "ubuntu-latest"
-    if: github.ref == "refs/heads/master"
+    if: "github.ref == 'refs/heads/master'"
 ```
 
 ```yaml title="Deployment"
@@ -632,10 +632,10 @@ jobs:
           username: "${{ secrets.DOCKER_USERNAME }}"
           password: "${{ secrets.DOCKER_PASSWORD }}"
           repository: "${{ env.IMAGE_REPOSITORY }}"
-          tags: "${GITHUB_REF#refs/heads/},${GITHUB_SHA}"
+          tags: "${{ env.GITHUB_SHA }}"
   deploy:
     runs-on: "ubuntu-latest"
-    if: github.ref == "refs/heads/master"
+    if: "github.ref == 'refs/heads/master'"
     needs:
       - "run-tests"
       - "build-and-release"
@@ -677,10 +677,10 @@ jobs:
           username: "${{ secrets.DOCKER_USERNAME }}"
           password: "${{ secrets.DOCKER_PASSWORD }}"
           repository: "${{ env.IMAGE_REPOSITORY }}"
-          tags: "${GITHUB_REF#refs/heads/},${GITHUB_SHA}"
+          tags: "${{ env.GITHUB_SHA }}"
   deploy:
     runs-on: "ubuntu-latest"
-    if: github.ref == "refs/heads/master"
+    if: "github.ref == 'refs/heads/master'"
     needs:
       - "run-tests"
       - "build-and-release"
@@ -725,62 +725,10 @@ jobs:
           username: "${{ secrets.DOCKER_USERNAME }}"
           password: "${{ secrets.DOCKER_PASSWORD }}"
           repository: "${{ env.IMAGE_REPOSITORY }}"
-          tags: "${GITHUB_REF#refs/heads/},${GITHUB_SHA}"
+          tags: "${{ env.GITHUB_SHA }}"
   deploy:
     runs-on: "ubuntu-latest"
-    if: github.ref == "refs/heads/master"
-    needs:
-      - "run-tests"
-      - "build-and-release"
-    steps:
-      - name: "Check out source code"
-        uses: "actions/checkout@v2"
-      - name: "Set up kubectl"
-        uses: "azure/setup-kubectl@v1"
-        with:
-          version: "1.14.10"
-```
-
-```yaml title="Deployment"
-name: "main-workflow"
-on:
-  push:
-    branches:
-      - "master"
-  pull_request:
-    branches:
-      - "master"
-env:
-  IMAGE_REPOSITORY: "busser/foobar"
-jobs:
-  run-tests:
-    runs-on: "ubuntu-latest"
-    steps:
-      - name: "Check out source code"
-        uses: "actions/checkout@v2"
-      - name: "Set up Go"
-        uses: "actions/setup-go@v2-beta"
-        with:
-          go-version: "^1.14"
-      - name: "Print Go version"
-        run: go version
-      - name: "Run unit tests"
-        run: go test -v ./...
-  build-and-release:
-    runs-on: "ubuntu-latest"
-    steps:
-      - name: "Check out source code"
-        uses: "actions/checkout@v2"
-      - name: "Build and push container image"
-        uses: "docker/build-push-action@v1"
-        with:
-          username: "${{ secrets.DOCKER_USERNAME }}"
-          password: "${{ secrets.DOCKER_PASSWORD }}"
-          repository: "${{ env.IMAGE_REPOSITORY }}"
-          tags: "${GITHUB_REF#refs/heads/},${GITHUB_SHA}"
-  deploy:
-    runs-on: "ubuntu-latest"
-    if: github.ref == "refs/heads/master"
+    if: "github.ref == 'refs/heads/master'"
     needs:
       - "run-tests"
       - "build-and-release"
@@ -790,7 +738,59 @@ jobs:
       - name: "Set up kubectl"
         uses: "azure/setup-kubectl@v1"
         with:
-          version: "1.14.10"
+          version: "v1.14.10"
+```
+
+```yaml title="Deployment"
+name: "main-workflow"
+on:
+  push:
+    branches:
+      - "master"
+  pull_request:
+    branches:
+      - "master"
+env:
+  IMAGE_REPOSITORY: "busser/foobar"
+jobs:
+  run-tests:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Check out source code"
+        uses: "actions/checkout@v2"
+      - name: "Set up Go"
+        uses: "actions/setup-go@v2-beta"
+        with:
+          go-version: "^1.14"
+      - name: "Print Go version"
+        run: go version
+      - name: "Run unit tests"
+        run: go test -v ./...
+  build-and-release:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Check out source code"
+        uses: "actions/checkout@v2"
+      - name: "Build and push container image"
+        uses: "docker/build-push-action@v1"
+        with:
+          username: "${{ secrets.DOCKER_USERNAME }}"
+          password: "${{ secrets.DOCKER_PASSWORD }}"
+          repository: "${{ env.IMAGE_REPOSITORY }}"
+          tags: "${{ env.GITHUB_SHA }}"
+  deploy:
+    runs-on: "ubuntu-latest"
+    if: "github.ref == 'refs/heads/master'"
+    needs:
+      - "run-tests"
+      - "build-and-release"
+    steps:
+      - name: "Check out source code"
+        uses: "actions/checkout@v2"
+      - name: "Set up kubectl"
+        uses: "azure/setup-kubectl@v1"
+        with:
+          version: "v1.14.10"
       - name: "Configure kubectl"
         run: |
           echo ${{ secrets.KUBECONFIG_B64 }} | base64 --decode > kubeconfig.yml
@@ -833,10 +833,10 @@ jobs:
           username: "${{ secrets.DOCKER_USERNAME }}"
           password: "${{ secrets.DOCKER_PASSWORD }}"
           repository: "${{ env.IMAGE_REPOSITORY }}"
-          tags: "${GITHUB_REF#refs/heads/},${GITHUB_SHA}"
+          tags: "${{ env.GITHUB_SHA }}"
   deploy:
     runs-on: "ubuntu-latest"
-    if: github.ref == "refs/heads/master"
+    if: "github.ref == 'refs/heads/master'"
     needs:
       - "run-tests"
       - "build-and-release"
@@ -846,7 +846,7 @@ jobs:
       - name: "Set up kubectl"
         uses: "azure/setup-kubectl@v1"
         with:
-          version: "1.14.10"
+          version: "v1.14.10"
       - name: "Configure kubectl"
         run: |
           echo ${{ secrets.KUBECONFIG_B64 }} | base64 --decode > kubeconfig.yml
@@ -893,10 +893,10 @@ jobs:
           username: "${{ secrets.DOCKER_USERNAME }}"
           password: "${{ secrets.DOCKER_PASSWORD }}"
           repository: "${{ env.IMAGE_REPOSITORY }}"
-          tags: "${GITHUB_REF#refs/heads/},${GITHUB_SHA}"
+          tags: "${{ env.GITHUB_SHA }}"
   deploy:
     runs-on: "ubuntu-latest"
-    if: github.ref == "refs/heads/master"
+    if: "github.ref == 'refs/heads/master'"
     needs:
       - "run-tests"
       - "build-and-release"
@@ -906,7 +906,7 @@ jobs:
       - name: "Set up kubectl"
         uses: "azure/setup-kubectl@v1"
         with:
-          version: "1.14.10"
+          version: "v1.14.10"
       - name: "Configure kubectl"
         run: |
           echo ${{ secrets.KUBECONFIG_B64 }} | base64 --decode > kubeconfig.yml
@@ -956,10 +956,10 @@ jobs:
           username: "${{ secrets.DOCKER_USERNAME }}"
           password: "${{ secrets.DOCKER_PASSWORD }}"
           repository: "${{ env.IMAGE_REPOSITORY }}"
-          tags: "${GITHUB_REF#refs/heads/},${GITHUB_SHA}"
+          tags: "${{ env.GITHUB_SHA }}"
   deploy:
     runs-on: "ubuntu-latest"
-    if: github.ref == "refs/heads/master"
+    if: "github.ref == 'refs/heads/master'"
     needs:
       - "run-tests"
       - "build-and-release"
@@ -969,7 +969,7 @@ jobs:
       - name: "Set up kubectl"
         uses: "azure/setup-kubectl@v1"
         with:
-          version: "1.14.10"
+          version: "v1.14.10"
       - name: "Configure kubectl"
         run: |
           echo ${{ secrets.KUBECONFIG_B64 }} | base64 --decode > kubeconfig.yml
@@ -1021,10 +1021,10 @@ jobs:
           username: "${{ secrets.DOCKER_USERNAME }}"
           password: "${{ secrets.DOCKER_PASSWORD }}"
           repository: "${{ env.IMAGE_REPOSITORY }}"
-          tags: "${GITHUB_REF#refs/heads/},${GITHUB_SHA}"
+          tags: "${{ env.GITHUB_SHA }}"
   deploy:
     runs-on: "ubuntu-latest"
-    if: github.ref == "refs/heads/master"
+    if: "github.ref == 'refs/heads/master'"
     needs:
       - "run-tests"
       - "build-and-release"
@@ -1034,7 +1034,7 @@ jobs:
       - name: "Set up kubectl"
         uses: "azure/setup-kubectl@v1"
         with:
-          version: "1.14.10"
+          version: "v1.14.10"
       - name: "Configure kubectl"
         run: |
           echo ${{ secrets.KUBECONFIG_B64 }} | base64 --decode > kubeconfig.yml
@@ -1088,10 +1088,10 @@ jobs:
           username: "${{ secrets.DOCKER_USERNAME }}"
           password: "${{ secrets.DOCKER_PASSWORD }}"
           repository: "${{ env.IMAGE_REPOSITORY }}"
-          tags: "${GITHUB_REF#refs/heads/},${GITHUB_SHA}"
+          tags: "${{ env.GITHUB_SHA }}"
   deploy:
     runs-on: "ubuntu-latest"
-    if: github.ref == "refs/heads/master"
+    if: "github.ref == 'refs/heads/master'"
     needs:
       - "run-tests"
       - "build-and-release"
@@ -1101,7 +1101,7 @@ jobs:
       - name: "Set up kubectl"
         uses: "azure/setup-kubectl@v1"
         with:
-          version: "1.14.10"
+          version: "v1.14.10"
       - name: "Configure kubectl"
         run: |
           echo ${{ secrets.KUBECONFIG_B64 }} | base64 --decode > kubeconfig.yml
@@ -1155,10 +1155,10 @@ jobs:
           username: "${{ secrets.DOCKER_USERNAME }}"
           password: "${{ secrets.DOCKER_PASSWORD }}"
           repository: "${{ env.IMAGE_REPOSITORY }}"
-          tags: "${GITHUB_REF#refs/heads/},${GITHUB_SHA}"
+          tags: "${{ env.GITHUB_SHA }}"
   deploy:
     runs-on: "ubuntu-latest"
-    if: github.ref == "refs/heads/master"
+    if: "github.ref == 'refs/heads/master'"
     needs:
       - "run-tests"
       - "build-and-release"
@@ -1168,7 +1168,7 @@ jobs:
       - name: "Set up kubectl"
         uses: "azure/setup-kubectl@v1"
         with:
-          version: "1.14.10"
+          version: "v1.14.10"
       - name: "Configure kubectl"
         run: |
           echo ${{ secrets.KUBECONFIG_B64 }} | base64 --decode > kubeconfig.yml

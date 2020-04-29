@@ -14,6 +14,7 @@ const addr = ":8080"
 func main() {
 	http.HandleFunc("/foobar", foobarHandler)
 	http.HandleFunc("/healthz", healthHandler)
+	http.HandleFunc("/awesome", awesomeHandler)
 
 	log.Printf("Listening for requests on %s\n", addr)
 
@@ -50,4 +51,9 @@ func foobarHandler(w http.ResponseWriter, r *http.Request) {
 // healthHandler reports on the server's health.
 func healthHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Server is healthy :)")
+}
+
+// awesomeHandler tells you how awesome you are.
+func awesomeHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "You are awesome ;)")
 }
